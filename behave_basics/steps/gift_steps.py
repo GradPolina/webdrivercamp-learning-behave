@@ -19,41 +19,16 @@ def step_impl(context, search_item):
     search_box.send_keys(Keys.RETURN)
     time.sleep(5)
 
-@step("Gift idea: select {item} from {header}")
-def step_impl(context, item, header):
-    item_xpath = (f'//div[@data-test="pictureNavigation"]'
-                  f'[contains (., "{header}")]'
-                  f'//li[contains(., "{item}")]//a')
+@step("Select {option} in {section}")
+def step_impl(context, option, section):
+    option_xpath = (f'//div[@data-test="pictureNavigation"]'
+                    f'[contains (., "{section}")]'
+                    f'//li[contains(., "{option}")]//a')
     base = Base(context.browser)
-    item = base.find_visible_element(item_xpath)
-    context.browser.execute_script("arguments[0].scrollIntoView();", item)
-    item.click()
+    option = base.find_visible_element(option_xpath)
+    context.browser.execute_script("arguments[0].scrollIntoView();", option)
+    option.click()
     time.sleep(10)
-
-@step("Verify all prices < {condition}")
-def step_impl(context, condition):
-    prices_xpath = (f'//div[@data-test="@web/ProductCard/ProductCardVariantDefault"]'
-                    f'//span[@data-test="current-price"]')
-    titles_xpath = (f'//div[@data-test="@web/ProductCard/ProductCardVariantDefault"]'
-                    f'//a[@data-test="product-title"]')
-
-    results_price = Base(context.browser).find_all_elements(prices_xpath)
-    results_title = Base(context.browser).find_all_elements(titles_xpath)
-
-    all_prices = [float(price.text.replace("$", "").split()[-1]) for price in results_price]
-    all_titles = [title.text for title in results_title]
-
-    mismatch = {}
-    for price, title in zip(all_prices, all_titles):
-        if condition == "<":
-            condition, exp_price = condition.strit().split()
-            if float(price) >= float(exp_price):
-                mismatch[title] = price
-
-    if mismatch:
-        for title, price in mismatch.items():
-            price(f'Item {title} has a price of {price}')
-        raise AssertionError("Some items have prices greater than the expected value.")
 
 @step("Verify header of the page contains {search_item}")
 def step_impl(context, search_item):
@@ -63,19 +38,39 @@ def step_impl(context, search_item):
     header_text = result_header.text
     assert search_item.lower() in header_text.lower(), f"Header doesn't contain '{search_item}': {header_text}"
 
-@step("Collect all items on the first page into {collected_items}")
-def step_impl(context, collected_items):
+@step("Collect all items on the first page into {context_var}")
+def step_impl(context, context_var):
     prices_xpath = (f'//div[@data-test="@web/ProductCard/ProductCardVariantDefault"]'
                     f'//span[@data-test="current-price"]')
-    titles_xpath = (f'//div[@data-test="@web/ProductCard/ProductCardVariantDefault"]'
-                    f'//a[@data-test="product-title"]')
+    items_xpath = (f'//div[@data-test="@web/ProductCard/ProductCardVariantDefault"]'
+                   f'//a[@data-test="product-title"]')
+
+    results_price = Base(context.browser).find_all_elements(prices_xpath)
+    results_items = Base(context.browser).find_all_elements(items_xpath)
 
     collected_items = []
 
-    results_price = Base(context.browser).find_all_elements(prices_xpath)
-    results_title = Base(context.browser).find_all_elements(titles_xpath)
-
     all_prices = [float(price.text.replace("$", "").split()[-1]) for price in results_price]
-    all_titles = [title.text for title in results_title]
+    all_items = [item.text for item in results_items]
 
-    collected_items.append({all_titles, all_prices})
+    for price, item in zip(all_items, all_prices):
+        collected_items.append({'title': item, 'price': price})
+    setattr(context, context_var, collected_items)
+
+@step("Verify all collected results' prices is {condition}")
+def step_impl(context, condition):
+    collected_items = context.collected_items
+    mismatch = {}
+    for item in collected_items:
+        price = item['price']
+        if condition == "<":
+            condition, exp_price = condition.strit().split()
+            if float(price) >= float(exp_price):
+                mismatch[item['title']] = price
+
+    if mismatch:
+        for item, price in mismatch.items():
+            price(f'Item {item} has a price of {price}')
+            raise AssertionError("Some items have prices greater than the expected value.")
+
+
