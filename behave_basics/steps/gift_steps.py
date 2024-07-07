@@ -55,9 +55,27 @@ def step_impl(context, condition):
             price(f'Item {title} has a price of {price}')
         raise AssertionError("Some items have prices greater than the expected value.")
 
+@step("Verify header of the page contains {search_item}")
+def step_impl(context, search_item):
+    base = Base(context.browser)
+    header_xpath = '//h1'
+    result_header = base.find_visible_element(header_xpath)
+    header_text = result_header.text
+    assert search_item.lower() in header_text.lower(), f"Header doesn't contain '{search_item}': {header_text}"
 
+@step("Collect all items on the first page into {collected_items}")
+def step_impl(context, collected_items):
+    prices_xpath = (f'//div[@data-test="@web/ProductCard/ProductCardVariantDefault"]'
+                    f'//span[@data-test="current-price"]')
+    titles_xpath = (f'//div[@data-test="@web/ProductCard/ProductCardVariantDefault"]'
+                    f'//a[@data-test="product-title"]')
 
+    collected_items = []
 
+    results_price = Base(context.browser).find_all_elements(prices_xpath)
+    results_title = Base(context.browser).find_all_elements(titles_xpath)
 
+    all_prices = [float(price.text.replace("$", "").split()[-1]) for price in results_price]
+    all_titles = [title.text for title in results_title]
 
-
+    collected_items.append({all_titles, all_prices})
