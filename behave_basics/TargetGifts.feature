@@ -17,17 +17,38 @@ Feature: Target Gifts
       | Gift Ideas  |
       | iphone      |
 
-  Scenario: Gift idea - Tech with price under $25
-    Given Navigate to https://www.target.com/c/gift-ideas/-/N-96d2i?lnk=snav_rd_gifts&redirect=true
-    When Gift idea: select Tech from Gifts for whatever
-    When Gift idea: select Under $25 from Gifts by price
-    Then Verify all prices < 25
 
   Scenario: Gifts - Price validation
     When Search for Gift Ideas
-    When Gift idea: select Her from Who are you shopping for?
-    When Gift idea: select Gifts under $15 from Great gifts for any budget
+    When Select Her in Who are you shopping for?
+    When Select Gifts under $15 in Great gifts for any budget
+    Then Collect all items on the first page into collected_items on the feature level
+    Then Verify all collected results' prices is < 15
+      | context.features.collected_items |
+
+ @no_background
+  Scenario: Gifts - Shipment validation
+    Then Verify all collected results' shipment is Free shipping
+      | context.feature.collected_items |
+
+
+  Scenario Outline: Gifts - All Price validation
+    When Search for Gift Ideas
+    When Select <option_1> in Who are you shopping for?
+    When Select <option_2> in Great gifts for any budget
     Then Collect all items on the first page into collected_items
-    Then Verify all prices < 15
+    Then Verify all collected results' price is <condition>
       | context.collected_items |
+    Examples: Her
+      | option_1 | option_2         | condition |
+      | Her      | Gifts under $15  | < 15      |
+      | Her      | Gifts under $25  | < 25      |
+      | Her      | Gifts under $50  | < 50      |
+      | Her      | Gifts under $100 | < 100     |
+    Examples: Him
+      | option_1 | option_2         | condition |
+      | Him      | Gifts under $15  | < 15      |
+      | Him      | Gifts under $25  | < 25      |
+      | Him      | Gifts under $50  | < 50      |
+      | Him      | Gifts under $100 | < 100     |
 
