@@ -8,6 +8,7 @@ from behave_basics.components.base import Base
 @step('Navigate to {url}')
 def step_impl(context, url):
     context.browser.get(url)
+    context.execute_steps('Then Print the current url')
 
 @step('Search for {search_item}')
 def step_impl(context, search_item):
@@ -33,8 +34,8 @@ def step_impl(context, option, section):
 @step("Verify header of the page contains {search_item}")
 def step_impl(context, search_item):
     base = Base(context.browser)
-    header_xpath = '//h1'
-    result_header = base.find_visible_element(header_xpath)
+    header_xpath = '//h1/span'
+    result_header = base.find_element(header_xpath).get_attribute('innerHTML')
     header_text = result_header.text
     assert search_item.lower() in header_text.lower(), f"Header doesn't contain '{search_item}': {header_text}"
 
