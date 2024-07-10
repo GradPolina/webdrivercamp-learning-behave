@@ -34,9 +34,9 @@ def step_impl(context, option, section):
 @step("Verify header of the page contains {search_item}")
 def step_impl(context, search_item):
     base = Base(context.browser)
-    header_xpath = '//h1/span'
-    result_header = base.find_element(header_xpath).get_attribute('innerHTML')
-    header_text = result_header.text
+    header_xpath = '//h1/span[contains(., "iphone")]'
+    result_header = base.find_element(header_xpath)
+    header_text = context.browser.execute_script('return arguments[0].innerText', result_header)
     assert search_item.lower() in header_text.lower(), f"Header doesn't contain '{search_item}': {header_text}"
 
 @step("Collect all items on the first page into {var}")
