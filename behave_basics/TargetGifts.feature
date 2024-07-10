@@ -18,6 +18,12 @@ Feature: Target Gifts
       | iphone      |
 
 
+  Scenario Outline: Verify searched page's headers
+    When Search for Gift Idea
+    Then Verify header of the page contains iphone
+
+
+
   Scenario: Gifts - Price validation
     When Search for Gift Ideas
     When Select Her in Who are you shopping for?
