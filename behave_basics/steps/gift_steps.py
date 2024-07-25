@@ -10,6 +10,7 @@ def step_impl(context, url):
     context.browser.get(url)
     context.execute_steps('Then Print the current url')
 
+
 @step('Search for {search_item}')
 def step_impl(context, search_item):
     base = Base(context.browser)
@@ -19,6 +20,7 @@ def step_impl(context, search_item):
     search_box.send_keys(search_item)
     search_box.send_keys(Keys.RETURN)
     time.sleep(5)
+
 
 @step("Select {option} in {section}")
 def step_impl(context, option, section):
@@ -31,6 +33,7 @@ def step_impl(context, option, section):
     option.click()
     time.sleep(10)
 
+
 @step("Verify header of the page contains {search_item}")
 def step_impl(context, search_item):
     base = Base(context.browser)
@@ -38,6 +41,7 @@ def step_impl(context, search_item):
     result_header = base.find_element(header_xpath)
     header_text = context.browser.execute_script('return arguments[0].innerText', result_header)
     assert search_item.lower() in header_text.lower(), f"Header doesn't contain '{search_item}': {header_text}"
+
 
 @step("Collect all items on the first page into {var}")
 @step("Collect all items on the first page into {var} on the {level} level")
@@ -66,6 +70,7 @@ def step_impl(context, var, level=None):
     else:
         setattr(context, var, collected_items)
 
+
 @step("Verify all collected results' {param} is {condition}")
 def step_impl(context, param, condition):
     collected_items = context.feature.collected_items
@@ -92,6 +97,7 @@ def step_impl(context, param, condition):
             for title, shipping in mismatch.items():
                 print(f'Item {title} has a price of {shipping}')
                 raise AssertionError("Some items do not have the expected shipment condition.")
+
 
 @step('Print the current url')
 def step_impl(context):

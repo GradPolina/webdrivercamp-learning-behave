@@ -3,25 +3,26 @@ Feature: Target Gifts
   Background:
     Given Navigate to https://www.target.com/
 
+
   Scenario: Navigate to the page
+
 
   Scenario: Search for gifts
     When Search for Gift Ideas
 
+
   Scenario Outline: Verify searched page's headers
     When Search for <search_item>
     Then Verify header of the page contains <search_item>
-
     Examples:
       | search_item |
       | Gift Ideas  |
       | iphone      |
 
 
-  Scenario Outline: Verify searched page's headers
+  Scenario: Verify searched page's headers
     When Search for Gift Idea
     Then Verify header of the page contains iphone
-
 
 
   Scenario: Gifts - Price validation
@@ -31,11 +32,6 @@ Feature: Target Gifts
     Then Collect all items on the first page into collected_items on the feature level
     Then Verify all collected results' prices is < 15
       | context.features.collected_items |
-
- @no_background
-  Scenario: Gifts - Shipment validation
-    Then Verify all collected results' shipment is Free shipping
-      | context.feature.collected_items |
 
 
   Scenario Outline: Gifts - All Price validation

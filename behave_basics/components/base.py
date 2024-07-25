@@ -7,8 +7,10 @@ class Base:
         self.driver = driver
         self.timeout = timeout
 
+
     def navigate_to(self, url):
         self.driver.get(url)
+
 
     def click(self, locator):
         element = WebDriverWait(self.driver, self.timeout).until(
@@ -16,17 +18,21 @@ class Base:
         )
         element.click()
 
+
     def find_visible_element(self, locator):
         return (WebDriverWait(self.driver, self.timeout).until(
             EC.visibility_of_element_located((By.XPATH, locator))))
+
 
     def find_all_elements(self, locator):
         return (WebDriverWait(self.driver, self.timeout).until(
             EC.presence_of_all_elements_located((By.XPATH, locator))))
 
-    def find_elements(self, locator):
+
+    def find_element(self, locator):
         return (WebDriverWait(self.driver, self.timeout).until(
             EC.presence_of_element_located((By.XPATH, locator))))
+
 
     def send_keys(self, locator, text):
         element = self.find_element(locator)
